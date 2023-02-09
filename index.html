@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="assets/style.css">
+    <title>Document</title>
+</head>
+
+<body>
+    <div class="mes">
+        <div><label for="mes_ano">Selecione o mês e o ano:</label></div>
+        <div><input type="month" id="mes_ano" name="mes_ano"></div>
+    </div>
+
+    <div class="divisao_nomes" hidden>
+        <div id="text_area_nomes">
+            <div><textarea id="nomes" style="width:100px; height:200px;"></textarea></div>
+            <div><a href="#nome_vezes" id="inserir_nomes" class="botoes">Inserir Nomes</a></div>
+        </div>
+    </div>
+
+    <div class="divisao_nomes_inseridos" hidden>
+        <div class="nomes_inseridos" >
+            <label for="nome_vezes">Repetir nomes na escala</label>
+            <input type="number" name="nome_vezes" id="nome_vezes" min="1" max="5" value="3">
+        </div>
+
+        <div id="lista_nomes">
+        </div>
+
+        <div id="escala_editavel" hidden>
+        </div>
+    </div>
+
+    <div class="divisao_nomes_inseridos" hidden>
+        <div class="nomes_inseridos">
+                <a href="#escala" id="criar_escala" class="botoes">Sortear Nomes</a>
+        </div>
+
+        <div id="escala" hidden>
+        </div>
+    </div>
+
+    <script src="assets/script.js"></script>
+</body>
+
+</html>
