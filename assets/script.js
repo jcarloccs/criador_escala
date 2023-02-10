@@ -40,7 +40,7 @@ const funcoesAuxiliares = {
     dadosTabela: function (i, calendarioPequeno, nome, dispMesa = 'checked="true"', dispProjecao = 'checked="true"', dispTransmissao = 'checked="true"', dispDomingo = 'checked="true"', dispQuarta = 'checked="true"', dispSabado = 'checked="true"') {
         let temp2 = `
         <tr>
-            <td id="nome${i}">${nome}</td> 
+            <td id="nome${i}" class="primeira_coluna">${nome}</td> 
             <td id="funcoes${i}">
 
                 <fieldset>
@@ -295,7 +295,7 @@ function tabelaEditavel(nomes) {
         switch (mes.data.getDay()) {
             case 0:
 
-                escalaEditavel += `<tr class="domingo"><td>Domingo - ${i}</td>`;
+                escalaEditavel += `<tr class="domingo"><td class="primeira_coluna">Domingo - ${i}</td>`;
 
                 escalaEditavel += `<td> <select id="mesa_dia${i}" name="mesa_dia${i}">
                 <option value="____">____</option>`;
@@ -322,7 +322,7 @@ function tabelaEditavel(nomes) {
 
             case 3:
 
-                escalaEditavel += `<tr class="quarta"><td>Quarta - ${i}</td>`;
+                escalaEditavel += `<tr class="quarta"><td class="primeira_coluna">Quarta - ${i}</td>`;
 
                 escalaEditavel += `<td> <select id="mesa_dia${i}" name="mesa_dia${i}">
                 <option value="____">____</option>`;
@@ -349,7 +349,7 @@ function tabelaEditavel(nomes) {
 
             case 6:
 
-                escalaEditavel += `<tr class="sabado"><td>Sábado - ${i}</td>`;
+                escalaEditavel += `<tr class="sabado"><td class="primeira_coluna">Sábado - ${i}</td>`;
 
                 escalaEditavel += `<td> <select id="mesa_dia${i}" name="mesa_dia${i}">
                 <option value="____">____</option>`;
@@ -606,7 +606,7 @@ function sortearNomes() {
 }
 
 function construirEscala() {
-    let escalaHtml = `<table class="tabela"> <tr><th colspan="4">${escala[0]}</th></tr>`;
+    let escalaHtml = `<h2 style="margin: 10px;">Escala pronta</h2> <table class="tabela"> <tr><th colspan="4">${escala[0]}</th></tr>`;
     let escalaConsole = escala[0];
 
     escalaHtml += "<tr> <th>Dias</th> <th>Mesa</th> <th>Projeção</th> <th>Transmissão</th> </tr>";
@@ -615,15 +615,15 @@ function construirEscala() {
 
         switch (mes.data.getDay()) {
             case 0:
-                escalaHtml += `<tr class="domingo"><td>Domingo - ${i}</td> <td>${escala[i].mesa}</td> <td>${escala[i].projecao}</td> <td>${escala[i].transmissao}</td></tr>`;
+                escalaHtml += `<tr class="domingo"><td class="primeira_coluna">Domingo - ${i}</td> <td>${escala[i].mesa}</td> <td>${escala[i].projecao}</td> <td>${escala[i].transmissao}</td></tr>`;
                 escalaConsole += `\nDomingo ${i} - Mesa: ${escala[i].mesa} - Projeção: ${escala[i].projecao} - Transmissão: ${escala[i].transmissao}`;
                 break;
             case 3:
-                escalaHtml += `<tr class="quarta"><td>Quarta - ${i}</td> <td>${escala[i].mesa}</td> <td>${escala[i].projecao}</td> <td>${escala[i].transmissao}</td></tr>`;
+                escalaHtml += `<tr class="quarta"><td class="primeira_coluna">Quarta - ${i}</td> <td>${escala[i].mesa}</td> <td>${escala[i].projecao}</td> <td>${escala[i].transmissao}</td></tr>`;
                 escalaConsole += `\nQuarta ${i} - Mesa: ${escala[i].mesa} - Projeção: ${escala[i].projecao} - Transmissão: ${escala[i].transmissao}`;
                 break;
             case 6:
-                escalaHtml += `<tr class="sabado"><td>Sábado - ${i}</td> <td>${escala[i].mesa}</td> <td>${escala[i].projecao}</td> <td>${escala[i].transmissao}</td></tr>`;
+                escalaHtml += `<tr class="sabado"><td class="primeira_coluna">Sábado - ${i}</td> <td>${escala[i].mesa}</td> <td>${escala[i].projecao}</td> <td>${escala[i].transmissao}</td></tr>`;
                 escalaConsole += `\nSábado ${i} - Mesa: ${escala[i].mesa} - Projeção: ${escala[i].projecao} - Transmissão: ${escala[i].transmissao}`;
                 break;
         }

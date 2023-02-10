@@ -11,29 +11,36 @@
 
 <body>
     <div class="mes">
-        <div><label for="mes_ano">Selecione o mês e o ano:</label></div>
+        <h2> <label for="mes_ano">Selecione o mês e o ano:</label> </h2>
         <div><input type="month" id="mes_ano" name="mes_ano"></div>
     </div>
 
     <div class="divisao_nomes" hidden>
+        <h2>Insira os nomes</h2>
         <div id="text_area_nomes" class="text_area">
+            <h3>Um nome por linha</h3>
             <div><textarea id="nomes" style="width:100px; height:200px;"></textarea></div>
-            <div><a href="#nome_vezes" id="inserir_nomes" class="botoes">Inserir Nomes</a></div>
+            <div><a href="#divisao_nomes_inseridos" id="inserir_nomes" class="botoes">Inserir Nomes</a></div>
         </div>
         <div id="text_area_nomesCSV" class="text_area">
-            <div><textarea id="nomesCSV" style="width:100px; height:200px;"></textarea></div>
-            <div><a href="#nome_vezes" id="inserir_nomesCSV" class="botoes">Inserir Nomes</a></div>
+            <h3>Cógido CSV 1 pessoa por linha: </h3>
+            <div><textarea id="nomesCSV" style="width:450px; height:200px;"></textarea></div>
+            <div><a href="#divisao_nomes_inseridos" id="inserir_nomesCSV" class="botoes">Inserir Nomes</a></div>
         </div>
+        <h4>Exemplo de CSV: nome;Mesa;Projeção;Transmissão;Domingo;Quarta;Sábado;fim</h4>
     </div>
 
-    <div class="divisao_nomes_inseridos" hidden>
-        <div class="nomes_inseridos" >
-            <label for="nome_vezes">Repetir nomes na escala</label>
+    <div class="divisao_nomes_inseridos" id="divisao_nomes_inseridos" hidden>
+        <h2>Disponibilidade de cada pessoa</h2>
+        <div class="nomes_inseridos">
+                <label for="nome_vezes">Repetir nomes na escala</label>
             <input type="number" name="nome_vezes" id="nome_vezes" min="1" max="5" value="3">
         </div>
 
         <div id="lista_nomes">
         </div>
+
+        <h2>Fixar nomes manualmente na escala</h2>
 
         <div id="escala_editavel" hidden>
         </div>
