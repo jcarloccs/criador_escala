@@ -1,8 +1,7 @@
-// variável que recebe a data e a quantidade de dias do mês
-const mes = {};
-
-//nome dos meses para impressão
-const meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+// variável que recebe a data, a quantidade de dias do mês e os meses
+const mes = {
+    meses: ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]
+};
 
 //pessoas associadas aos dias da semana
 const pessoasSemana = {
@@ -25,43 +24,27 @@ const funcoesBackup = {
     transmissao: []
 };
 
-function pessoas(funcoes, diasSemana, diasMes, maxVezes) {
-    this.funcoes = funcoes;
-    this.diasSemana = diasSemana;
-    this.diasMes = diasMes;
-    this.maxVezes = maxVezes;
-}
+//pessoas que não podem num dia específico daquele mês
+let diasExcluidos;
 
-//variável que recebe a escala
-let escala;
+//pessoas que são excluidas de alguma(s) rodadas
+let excluirRodadas = {};
 
 //quantidade de vezes que um nome pode aparecer na escala
 let nomeVezes;
 
-//pessoas que não podem num dia específico daquele mês
-let diasExcluidos;
+//variável que recebe a escala
+let escala;
 
-let excluirRodadas = {};
-
-document.getElementById("mes_ano").addEventListener("change", inserirMes);
-document.getElementById("inserir_nomes").addEventListener("click", inserirNomes);
-document.getElementById("nome_vezes").addEventListener("change", mudarVezes);
-document.getElementById("criar_escala").addEventListener("click", criarEscala);
-document.getElementById("nomes").addEventListener("change", inserirMes)
-
-document.getElementById("nomes").innerHTML = `Jean
-Adriano
-Rian
-Daniel
-Matheus
-Ismael
-Jonatas
-Samuel
-Kaliane
-Felipe
-Julia
-Noemi
-Gutinho`;
+(function() {
+    document.getElementById("mes_ano").addEventListener("change", inserirMes);
+    document.getElementById("inserir_nomes").addEventListener("click", inserirNomes);
+    document.getElementById("nome_vezes").addEventListener("change", mudarVezes);
+    document.getElementById("criar_escala").addEventListener("click", criarEscala);
+    document.getElementById("nomes").addEventListener("change", inserirMes)
+    
+    document.getElementById("nomes").innerHTML = "Jean\nAdriano\nRian\nDaniel\nMatheus\nIsmael\nJonatas\nSamuel\nKaliane\nFelipe\nJulia\nNoemi\nGutinho";
+})();
 
 function inserirMes() {
     document.getElementsByClassName("divisao_nomes")[0].removeAttribute("hidden");
@@ -76,9 +59,9 @@ function inserirMes() {
 function inserirNomes() {
     pegarMes();
     zerarEscala();
-    tabelaEditavel(pegarNomesTextarea());
+    tabelaEditavel(document.getElementById("nomes").value.split("\n"));
     document.getElementById("escala_editavel").removeAttribute("hidden")
-    inserirNomesTabela(pegarNomesTextarea());
+    inserirNomesTabela(document.getElementById("nomes").value.split("\n"));
     document.getElementsByClassName("divisao_nomes_inseridos")[0].removeAttribute("hidden");
     document.getElementsByClassName("divisao_nomes_inseridos")[1].removeAttribute("hidden");
 }
@@ -108,7 +91,7 @@ function pegarMes() {
 
 function zerarEscala() {
     escala = [];
-    escala[0] = meses[mes.data.getMonth()] + " - " + mes.data.getFullYear();
+    escala[0] = mes.meses[mes.data.getMonth()] + " - " + mes.data.getFullYear();
     for (let i = 1; i <= mes.quantDiasMes; i++) {
         escala[i] = {
             mesa: null,
@@ -148,10 +131,6 @@ function criarCalendarioPequeno() {
     calendarioPequeno += '</tr> </table>';
 
     return calendarioPequeno;
-}
-
-function pegarNomesTextarea() {
-    return document.getElementById("nomes").value.split("\n");
 }
 
 function tabelaEditavel(nomes) {
@@ -250,7 +229,6 @@ function tabelaEditavel(nomes) {
 }
 
 function inserirNomesTabela(nomes) {
-    //coloca os nomes numa tabela
 
     let calendarioPequeno = criarCalendarioPequeno();
 
@@ -487,8 +465,6 @@ function sortearNomes() {
                 if (!sorteadoProjecao) sorteadoProjecao = null;
 
                 escala[i] = { mesa: sorteadoMesa, projecao: sorteadoProjecao, transmissao: sorteadoTransmissao };
-
-                console.log(i, escala[i]);
 
             } else if (escala[i] == undefined) escala[i] = null;
 
