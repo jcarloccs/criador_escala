@@ -11,6 +11,10 @@ div {
     padding: 5px;
 }
 
+.text_area {
+    display: inline-block;
+}
+
 .divisao_nomes,
 .divisao_nomes_inseridos {
     width: 100%;

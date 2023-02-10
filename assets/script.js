@@ -36,14 +36,201 @@ let nomeVezes;
 //variável que recebe a escala
 let escala;
 
-(function() {
+const funcoesAuxiliares = {
+    dadosTabela: function (i, calendarioPequeno, nome, dispMesa = 'checked="true"', dispProjecao = 'checked="true"', dispTransmissao = 'checked="true"', dispDomingo = 'checked="true"', dispQuarta = 'checked="true"', dispSabado = 'checked="true"') {
+        let temp2 = `
+        <tr>
+            <td id="nome${i}">${nome}</td> 
+            <td id="funcoes${i}">
+
+                <fieldset>
+  
+                    <input type="checkbox" name="mesa" value="mesa" class="mesa" ${dispMesa}>
+                    <label for="mesa"> Mesa</label></br>
+
+                    <input type="checkbox" name="projecao" value="projecao" class="projecao" ${dispProjecao}>
+                    <label for="projecao"> Projeção</label></br>
+
+                    <input type="checkbox" name="transmissao" value="transmissao" class="transmissao" ${dispTransmissao}>
+                    <label for="transmissao"> Transmissão</label></br>
+
+                </fieldset>
+
+            </td>
+
+            <td id="dias_semana${i}">
+
+                <fieldset>
+        
+                    <input type="checkbox" name="domingo" value="domingo" class="domingo" ${dispDomingo}>
+                    <label for="domingo"> Domingo</label></br>
+
+                    <input type="checkbox" name="quarta" value="quarta" class="quarta" ${dispQuarta}>
+                    <label for="projecao"> Quarta</label></br>
+
+                    <input type="checkbox" name="sabado" value="sabado" class="sabado" ${dispSabado}>
+                    <label for="sabado"> Sábado</label></br>
+
+                </fieldset>
+
+            </td">
+
+            <td id="dias_incluidos${i}">
+                ${calendarioPequeno}
+            </td>
+
+            <td id="rodada_fora${i}" class="max_vezes">
+                <input type="number" name="nome_rodada" min="0" max="5" value="3">
+            </td>
+       
+        </tr>`;
+        return temp2;
+    },
+    mudarVezes: function() {
+        let names = document.getElementById("nomes").value.split("\n");
+        for (let i = 0; i < names.length; i++) {
+            let temp = document.getElementById("nome_vezes").value;
+            document.getElementById(`rodada_fora${i}`).getElementsByTagName("input")[0].setAttribute("value", temp);
+        }
+    },
+    pegarMes: function() {
+        let anoMes = document.getElementById("mes_ano").value.split("-");
+        mes.data = new Date(anoMes[0], anoMes[1], 0);
+        mes.quantDiasMes = mes.data.getDate();
+        mes.data = new Date(`${anoMes[0]}-${anoMes[1]}-01T00:00:00-03:00`);
+    },
+    zerarEscala: function() {
+        escala = [];
+        escala[0] = mes.meses[mes.data.getMonth()] + " - " + mes.data.getFullYear();
+        for (let i = 1; i <= mes.quantDiasMes; i++) {
+            escala[i] = {
+                mesa: null,
+                projecao: null,
+                transmissao: null
+            };
+        }
+    },
+    recolocarNomes: function() {
+        funcoes.mesa = funcoesBackup.mesa.map(x => x);
+        funcoes.projecao = funcoesBackup.projecao.map(x => x);
+        funcoes.transmissao = funcoesBackup.transmissao.map(x => x);
+    },
+    sortear: function(funcao, diaDaSemana, naoRepetirEsses, diaDoMes) {
+
+        if (funcao.length == 0) return null;
+    
+        // remove nomes que não podem no dia
+        let nomesQuePodem;
+        switch (diaDaSemana) {
+            case 0:
+                nomesQuePodem = funcao.filter(x => pessoasSemana.domingo.includes(x));
+                break;
+            case 3:
+                nomesQuePodem = funcao.filter(x => pessoasSemana.quarta.includes(x));
+                break;
+            case 6:
+                nomesQuePodem = funcao.filter(x => pessoasSemana.sabado.includes(x));
+                break;
+        }
+    
+        //remove pessoas que não podem em um dia específico
+        if (diasExcluidos[diaDoMes]) {
+            nomesQuePodem = nomesQuePodem.filter(x => {
+                if (diasExcluidos[diaDoMes].includes(x)) return false;
+                return true;
+            });
+        }
+    
+        //remove nomes repetidos no dia
+        nomesQuePodem = nomesQuePodem.filter(x => {
+            if (x == naoRepetirEsses.mesa) return false;
+            else if (x == naoRepetirEsses.projecao) return false;
+            else if (x == naoRepetirEsses.transmissao) return false;
+    
+            return true;
+        });
+    
+        //remove nomes de x rodada(s)
+        for (let x in excluirRodadas) {
+            if (!(excluirRodadas[x] >= nomeVezes)) {
+                nomesQuePodem = nomesQuePodem.filter(y => y != x);
+            }
+        }
+    
+        //sorteia um nome
+        let numero = Math.floor(Math.random() * nomesQuePodem.length);
+        let nome = nomesQuePodem.splice(numero, 1)[0];
+    
+        if (nome === undefined) return null;
+    
+        let posicao = funcoes.mesa.indexOf(nome);
+        if (posicao !== -1) funcoes.mesa.splice(posicao, 1);
+    
+        posicao = funcoes.projecao.indexOf(nome);
+        if (posicao !== -1) funcoes.projecao.splice(posicao, 1);
+    
+        posicao = funcoes.transmissao.indexOf(nome);
+        if (posicao !== -1) funcoes.transmissao.splice(posicao, 1);
+    
+        return nome;
+    },
+    criarCalendarioPequeno: function() {
+
+        let calendarioPequeno = '<table class="pequeno_calendario"> <tr> <th>Dom</th> <th hidden>Seg</th> <th hidden>Ter</th> <th>Qua</th> <th hidden>Qui</th> <th hidden>Sex</th> <th>Sáb</th> </tr> <tr>';
+    
+        //dias da semana
+        for (let i = 1; i <= mes.data.getDay(); i++) {
+            if (i == 1 || i == 4 || i == 7) {
+                calendarioPequeno += '<td style="background-color: white;"></td>';
+            } else {
+                calendarioPequeno += '<td hidden style="background-color: white;"></td>';
+            }
+        }
+        //dias do mês
+        for (let i = 1; i <= mes.quantDiasMes; i++) {
+            mes.data.setDate(i);
+            mes.data.getDay();
+            if (mes.data.getDay() == 0 || mes.data.getDay() == 3 || mes.data.getDay() == 6) {
+                calendarioPequeno += `<td> <input type="checkbox" name="dia${i}" value="dia${i}" class="dia${i}" checked="true">
+                <label for="dia">${i}</label> </td>`;
+            } else {
+                calendarioPequeno += `<td hidden> <input type="checkbox" name="dia${i}" value="dia${i}" class="dia${i}" checked="true">
+                <label for="dia">${i}</label> </td>`;
+            }
+            mes.data.setDate(1);
+            if ((i + mes.data.getDay()) % 7 == 0) calendarioPequeno += '</tr> <tr>';
+        }
+    
+        calendarioPequeno += '</tr> </table>';
+    
+        return calendarioPequeno;
+    }
+
+};
+
+//autoinvocável
+(function () {
     document.getElementById("mes_ano").addEventListener("change", inserirMes);
     document.getElementById("inserir_nomes").addEventListener("click", inserirNomes);
-    document.getElementById("nome_vezes").addEventListener("change", mudarVezes);
+    document.getElementById("inserir_nomesCSV").addEventListener("click", inserirNomesCSV);
+    document.getElementById("nome_vezes").addEventListener("change", funcoesAuxiliares.mudarVezes);
     document.getElementById("criar_escala").addEventListener("click", criarEscala);
     document.getElementById("nomes").addEventListener("change", inserirMes)
-    
+
     document.getElementById("nomes").innerHTML = "Jean\nAdriano\nRian\nDaniel\nMatheus\nIsmael\nJonatas\nSamuel\nKaliane\nFelipe\nJulia\nNoemi\nGutinho";
+    document.getElementById("nomesCSV").innerHTML = `Kaliane;Mesa;Projeção;;Domingo;;Sábado;fim
+Jean;Mesa;Projeção;Transmissão;Domingo;Quarta;;fim
+Noemi;;Projeção;;;;Sábado;fim
+Adriano;;Projeção;Transmissão;Domingo;;Sábado;fim
+Daniel;Mesa;Projeção;Transmissão;;Quarta;Sábado;fim
+Matheus;Mesa;Projeção;;Domingo;;Sábado;fim
+Samuel;Mesa;Projeção;Transmissão;Domingo;;Sábado;fim
+Rian;Mesa;Projeção;;Domingo;Quarta;Sábado;fim
+Julia;Mesa;Projeção;Transmissão;Domingo;;Sábado;fim
+Gutinho;Mesa;Projeção;Transmissão;Domingo;Quarta;Sábado;fim
+Ismael;;Projeçao;Transmissão;;;Sábado;fim
+Jonatas;Mesa;Projeção;Transmissão;Domingo;Quarta;Sábado;fim
+Felipe;Mesa;Projeção;;Domingo;;Sábado;fim`
 })();
 
 function inserirMes() {
@@ -57,18 +244,32 @@ function inserirMes() {
 }
 
 function inserirNomes() {
-    pegarMes();
-    zerarEscala();
+    funcoesAuxiliares.pegarMes();
+    funcoesAuxiliares.zerarEscala();
     tabelaEditavel(document.getElementById("nomes").value.split("\n"));
     document.getElementById("escala_editavel").removeAttribute("hidden")
+
     inserirNomesTabela(document.getElementById("nomes").value.split("\n"));
+
+    document.getElementsByClassName("divisao_nomes_inseridos")[0].removeAttribute("hidden");
+    document.getElementsByClassName("divisao_nomes_inseridos")[1].removeAttribute("hidden");
+}
+
+function inserirNomesCSV() {
+    funcoesAuxiliares.pegarMes();
+    funcoesAuxiliares.zerarEscala();
+    tabelaEditavel(document.getElementById("nomes").value.split("\n"));
+    document.getElementById("escala_editavel").removeAttribute("hidden")
+
+    inserirNomesTabelaCSV(document.getElementById("nomesCSV").value.split("\n"));
+
     document.getElementsByClassName("divisao_nomes_inseridos")[0].removeAttribute("hidden");
     document.getElementsByClassName("divisao_nomes_inseridos")[1].removeAttribute("hidden");
 }
 
 function criarEscala() {
-    pegarMes();
-    zerarEscala();
+    funcoesAuxiliares.pegarMes();
+    funcoesAuxiliares.zerarEscala();
     coletarTabelaEditavel();
     organizarDados();
     backupDados();
@@ -78,60 +279,11 @@ function criarEscala() {
     for (let i = 0; i < nomeVezes; nomeVezes--) {
         sortearNomes();
         construirEscala();
-        recolocarNomes();
+        funcoesAuxiliares.recolocarNomes();
     }
 }
 
-function pegarMes() {
-    let anoMes = document.getElementById("mes_ano").value.split("-");
-    mes.data = new Date(anoMes[0], anoMes[1], 0);
-    mes.quantDiasMes = mes.data.getDate();
-    mes.data = new Date(`${anoMes[0]}-${anoMes[1]}-01T00:00:00-03:00`);
-}
 
-function zerarEscala() {
-    escala = [];
-    escala[0] = mes.meses[mes.data.getMonth()] + " - " + mes.data.getFullYear();
-    for (let i = 1; i <= mes.quantDiasMes; i++) {
-        escala[i] = {
-            mesa: null,
-            projecao: null,
-            transmissao: null
-        };
-    }
-}
-
-function criarCalendarioPequeno() {
-
-    let calendarioPequeno = '<table class="pequeno_calendario"> <tr> <th>Dom</th> <th hidden>Seg</th> <th hidden>Ter</th> <th>Qua</th> <th hidden>Qui</th> <th hidden>Sex</th> <th>Sáb</th> </tr> <tr>';
-
-    //dias da semana
-    for (let i = 1; i <= mes.data.getDay(); i++) {
-        if (i == 1 || i == 4 || i == 7) {
-            calendarioPequeno += '<td style="background-color: white;"></td>';
-        } else {
-            calendarioPequeno += '<td hidden style="background-color: white;"></td>';
-        }
-    }
-    //dias do mês
-    for (let i = 1; i <= mes.quantDiasMes; i++) {
-        mes.data.setDate(i);
-        mes.data.getDay();
-        if (mes.data.getDay() == 0 || mes.data.getDay() == 3 || mes.data.getDay() == 6) {
-            calendarioPequeno += `<td> <input type="checkbox" name="dia${i}" value="dia${i}" class="dia${i}" checked="true">
-            <label for="dia">${i}</label> </td>`;
-        } else {
-            calendarioPequeno += `<td hidden> <input type="checkbox" name="dia${i}" value="dia${i}" class="dia${i}" checked="true">
-            <label for="dia">${i}</label> </td>`;
-        }
-        mes.data.setDate(1);
-        if ((i + mes.data.getDay()) % 7 == 0) calendarioPequeno += '</tr> <tr>';
-    }
-
-    calendarioPequeno += '</tr> </table>';
-
-    return calendarioPequeno;
-}
 
 function tabelaEditavel(nomes) {
 
@@ -230,10 +382,9 @@ function tabelaEditavel(nomes) {
 
 function inserirNomesTabela(nomes) {
 
-    let calendarioPequeno = criarCalendarioPequeno();
+    let calendarioPequeno = funcoesAuxiliares.criarCalendarioPequeno();
 
-    let listaNomes = "";
-    listaNomes += `<table class="tabela_editavel"> 
+    let listaNomes = `<table class="tabela_editavel"> 
     <tr> 
         <th>Nomes</th> 
         <th>Funções</th> 
@@ -243,62 +394,43 @@ function inserirNomesTabela(nomes) {
     </tr>`;
 
     for (let i = 0; i < nomes.length; i++) {
-        listaNomes += `
-        <tr>
-            <td id="nome${i}">${nomes[i]}</td> 
-            <td id="funcoes${i}">
-
-                <fieldset>
-  
-                    <input type="checkbox" name="mesa" value="mesa" class="mesa" checked="true">
-                    <label for="mesa"> Mesa</label></br>
-
-                    <input type="checkbox" name="projecao" value="projecao" class="projecao" checked="true">
-                    <label for="projecao"> Projeção</label></br>
-
-                    <input type="checkbox" name="transmissao" value="transmissao" class="transmissao" checked="true">
-                    <label for="transmissao"> Transmissão</label></br>
-
-                </fieldset>
-
-            </td>
-
-            <td id="dias_semana${i}">
-
-                <fieldset>
-        
-                    <input type="checkbox" name="domingo" value="domingo" class="domingo" checked="true">
-                    <label for="domingo"> Domingo</label></br>
-
-                    <input type="checkbox" name="quarta" value="quarta" class="quarta" checked="true">
-                    <label for="projecao"> Quarta</label></br>
-
-                    <input type="checkbox" name="sabado" value="sabado" class="sabado" checked="true">
-                    <label for="sabado"> Sábado</label></br>
-
-                </fieldset>
-
-            </td">
-
-            <td id="dias_incluidos${i}">
-                ${calendarioPequeno}
-            </td>
-
-            <td id="rodada_fora${i}" class="max_vezes">
-                <input type="number" name="nome_rodada" min="0" max="5" value="3">
-            </td>
-       
-        </tr>`;
+        listaNomes += funcoesAuxiliares.dadosTabela(i, calendarioPequeno, nomes[i]);
     }
+
     listaNomes += "</table>"
     document.getElementById("lista_nomes").removeAttribute("hidden");
     document.getElementById("lista_nomes").innerHTML = listaNomes;
 }
 
-function recolocarNomes() {
-    funcoes.mesa = funcoesBackup.mesa.map(x => x);
-    funcoes.projecao = funcoesBackup.projecao.map(x => x);
-    funcoes.transmissao = funcoesBackup.transmissao.map(x => x);
+function inserirNomesTabelaCSV(nomesCSV) {
+
+    let calendarioPequeno = funcoesAuxiliares.criarCalendarioPequeno();
+    let listaNomes = `<table class="tabela_editavel"> 
+    <tr> 
+        <th>Nomes</th> 
+        <th>Funções</th> 
+        <th>Dias</th> 
+        <th>Disponibilidade</th> 
+        <th>Max vezes</th>
+    </tr>`;
+
+    for (let i = 0; i < nomesCSV.length; i++) {
+        let temp = nomesCSV[i].split(";");
+
+        let nomeBruto = temp[0];
+        let dispMesa = temp[1] == "Mesa" ? 'checked="true"' : "";
+        let dispProjecao = temp[2] == "Projeção" ? 'checked="true"' : "";
+        let dispTransmissao = temp[3] == "Transmissão" ? 'checked="true"' : "";
+        let dispDomingo = temp[4] == "Domingo" ? 'checked="true"' : "";
+        let dispQuarta = temp[5] == "Quarta" ? 'checked="true"' : "";
+        let dispSabado = temp[6] == "Sábado" ? 'checked="true"' : "";
+
+        listaNomes += funcoesAuxiliares.dadosTabela(i, calendarioPequeno, nomeBruto, dispMesa, dispProjecao, dispTransmissao, dispDomingo, dispQuarta, dispSabado);
+    }
+
+    listaNomes += "</table>"
+    document.getElementById("lista_nomes").removeAttribute("hidden");
+    document.getElementById("lista_nomes").innerHTML = listaNomes;
 }
 
 function organizarDados() {
@@ -387,6 +519,7 @@ function coletarTabelaEditavel() {
 
 function sortearNomes() {
 
+    //prioriza dias com poucos nomes
     const quantNomes = [[0, pessoasSemana.domingo.length], [3, pessoasSemana.quarta.length], [6, pessoasSemana.sabado.length]];
 
     while (quantNomes.length) {
@@ -403,14 +536,18 @@ function sortearNomes() {
                 let sorteadoTransmissao;
                 let sorteadoProjecao;
 
-                sorteadoMesa = escala[i].mesa == null ? sortear(funcoes.mesa, mes.data.getDay(), escala[i], i) : escala[i].mesa;
-                sorteadoTransmissao = escala[i].transmissao == null ? sortear(funcoes.transmissao, mes.data.getDay(), escala[i], i) : escala[i].transmissao;
+                //orderm de sorteio = mesa, transmissão, projeção
+                sorteadoMesa = escala[i].mesa == null ? funcoesAuxiliares.sortear(funcoes.mesa, mes.data.getDay(), escala[i], i) : escala[i].mesa;
+                sorteadoTransmissao = escala[i].transmissao == null ? funcoesAuxiliares.sortear(funcoes.transmissao, mes.data.getDay(), escala[i], i) : escala[i].transmissao;
 
+                //sorteia projeção somente no sábado
                 if (mes.data.getDay() == 6) {
                     sorteadoProjecao = escala[i].projecao == null ?
-                        sortear(funcoes.projecao, mes.data.getDay(), escala[i], i) : escala[i].projecao;
+                        funcoesAuxiliares.sortear(funcoes.projecao, mes.data.getDay(), escala[i], i) : escala[i].projecao;
                 }
 
+                //verifica se a pessoa da mesa e da transmissão pode ficar na projeção
+                //ou força a pessoa da transmissão a ficar na projeção
                 else if (!escala[i].projecao) {
 
                     if ((sorteadoMesa && sorteadoTransmissao) &&
@@ -418,21 +555,17 @@ function sortearNomes() {
                             funcoesBackup.projecao.includes(sorteadoTransmissao))) {
                         sorteadoProjecao = sorteadoMesa + "/" + sorteadoTransmissao;
                     }
-
                     else if ((sorteadoMesa && !sorteadoTransmissao) &&
                         funcoesBackup.projecao.includes(sorteadoMesa)) {
                         sorteadoProjecao = sorteadoMesa;
                     }
-
                     else if ((!sorteadoMesa && sorteadoTransmissao) &&
                         funcoesBackup.projecao.includes(sorteadoTransmissao)) {
                         sorteadoProjecao = sorteadoTransmissao;
                     }
-
                     else if (sorteadoTransmissao) {
                         sorteadoProjecao = sorteadoTransmissao;
                     }
-
                     else {
                         sorteadoProjecao = null
                     }
@@ -446,13 +579,11 @@ function sortearNomes() {
                             funcoesBackup.projecao.includes(sorteadoTransmissao))) {
                         sorteadoProjecao = escala[i].projecao + "/" + sorteadoTransmissao;
                     }
-
                     else if ((sorteadoTransmissao == escala[i].projecao) &&
                         (sorteadoMesa && (sorteadoMesa != escala[i].projecao) &&
                             funcoesBackup.projecao.includes(sorteadoMesa))) {
                         sorteadoProjecao = sorteadoMesa + "/" + escala[i].projecao;
                     }
-
                     else {
                         sorteadoProjecao = escala[i].projecao;
                     }
@@ -467,72 +598,11 @@ function sortearNomes() {
                 escala[i] = { mesa: sorteadoMesa, projecao: sorteadoProjecao, transmissao: sorteadoTransmissao };
 
             } else if (escala[i] == undefined) escala[i] = null;
-
         }
 
         quantNomes.splice(0, 1);
 
     }
-}
-
-function sortear(funcao, diaDaSemana, naoRepetirEsses, diaDoMes) {
-
-    if (funcao.length == 0) return null;
-
-    // remove nomes que não podem no dia
-    let nomesQuePodem;
-    switch (diaDaSemana) {
-        case 0:
-            nomesQuePodem = funcao.filter(x => pessoasSemana.domingo.includes(x));
-            break;
-        case 3:
-            nomesQuePodem = funcao.filter(x => pessoasSemana.quarta.includes(x));
-            break;
-        case 6:
-            nomesQuePodem = funcao.filter(x => pessoasSemana.sabado.includes(x));
-            break;
-    }
-
-    //remove pessoas que não podem em um dia específico
-    if (diasExcluidos[diaDoMes]) {
-        nomesQuePodem = nomesQuePodem.filter(x => {
-            if (diasExcluidos[diaDoMes].includes(x)) return false;
-            return true;
-        });
-    }
-
-    //remove nomes repetidos no dia
-    nomesQuePodem = nomesQuePodem.filter(x => {
-        if (x == naoRepetirEsses.mesa) return false;
-        else if (x == naoRepetirEsses.projecao) return false;
-        else if (x == naoRepetirEsses.transmissao) return false;
-
-        return true;
-    });
-
-    //remove nomes de x rodada(s)
-    for (let x in excluirRodadas) {
-        if (!(excluirRodadas[x] >= nomeVezes)) {
-            nomesQuePodem = nomesQuePodem.filter(y => y != x);
-        }
-    }
-
-    //sorteia um nome
-    let numero = Math.floor(Math.random() * nomesQuePodem.length);
-    let nome = nomesQuePodem.splice(numero, 1)[0];
-
-    if (nome === undefined) return null;
-
-    let posicao = funcoes.mesa.indexOf(nome);
-    if (posicao !== -1) funcoes.mesa.splice(posicao, 1);
-
-    posicao = funcoes.projecao.indexOf(nome);
-    if (posicao !== -1) funcoes.projecao.splice(posicao, 1);
-
-    posicao = funcoes.transmissao.indexOf(nome);
-    if (posicao !== -1) funcoes.transmissao.splice(posicao, 1);
-
-    return nome;
 }
 
 function construirEscala() {
@@ -561,15 +631,8 @@ function construirEscala() {
     escalaHtml += "</table>";
     document.getElementById("escala").removeAttribute("hidden");
     document.getElementById("escala").innerHTML = escalaHtml.replace(/null/g, "____");
-    
+
     console.log('Mesa:', funcoes.mesa, 'Projeção:', funcoes.projecao, 'Transmissão:', funcoes.transmissao);
     console.log(escala);
 }
 
-function mudarVezes() {
-    let names = document.getElementById("nomes").value.split("\n");
-    for (let i = 0; i < names.length; i++) {
-        let temp = document.getElementById("nome_vezes").value;
-        document.getElementById(`rodada_fora${i}`).getElementsByTagName("input")[0].setAttribute("value", temp);
-    }
-}
