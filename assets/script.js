@@ -37,6 +37,7 @@ let nomeVezes;
 let escala;
 
 const funcoesAuxiliares = {
+    //cria a tabela de disponibilidade
     dadosTabela: function (i, calendarioPequeno, nome, dispMesa = 'checked="true"', dispProjecao = 'checked="true"', dispTransmissao = 'checked="true"', dispDomingo = 'checked="true"', dispQuarta = 'checked="true"', dispSabado = 'checked="true"') {
         let temp2 = `
         <tr>
@@ -86,6 +87,7 @@ const funcoesAuxiliares = {
         </tr>`;
         return temp2;
     },
+    //altera a quantidade de vezes que alguém aparece na escala mensal
     mudarVezes: function() {
         let names = document.getElementById("nomes").value.split("\n");
         for (let i = 0; i < names.length; i++) {
@@ -93,12 +95,14 @@ const funcoesAuxiliares = {
             document.getElementById(`rodada_fora${i}`).getElementsByTagName("input")[0].setAttribute("value", temp);
         }
     },
+    //pega a informação do mês escolhido para criar a escala
     pegarMes: function() {
         let anoMes = document.getElementById("mes_ano").value.split("-");
         mes.data = new Date(anoMes[0], anoMes[1], 0);
         mes.quantDiasMes = mes.data.getDate();
         mes.data = new Date(`${anoMes[0]}-${anoMes[1]}-01T00:00:00-03:00`);
     },
+    //zera a variável da escala
     zerarEscala: function() {
         escala = [];
         escala[0] = mes.meses[mes.data.getMonth()] + " - " + mes.data.getFullYear();
@@ -110,16 +114,18 @@ const funcoesAuxiliares = {
             };
         }
     },
+    //pega o backup dos nomes para sortear quantas vezes tiver na variável "nomeVezes"
     recolocarNomes: function() {
         funcoes.mesa = funcoesBackup.mesa.map(x => x);
         funcoes.projecao = funcoesBackup.projecao.map(x => x);
         funcoes.transmissao = funcoesBackup.transmissao.map(x => x);
     },
+    //faz o sorteio dos nomes para inserir na escala
     sortear: function(funcao, diaDaSemana, naoRepetirEsses, diaDoMes) {
 
         if (funcao.length == 0) return null;
     
-        // remove nomes que não podem no dia
+        // remove nomes que não podem no dia de acordo com a variável "diaDaSemana"
         let nomesQuePodem;
         switch (diaDaSemana) {
             case 0:
@@ -150,7 +156,7 @@ const funcoesAuxiliares = {
             return true;
         });
     
-        //remove nomes de x rodada(s)
+        //remove nomes de "x" rodada(s)
         for (let x in excluirRodadas) {
             if (!(excluirRodadas[x] >= nomeVezes)) {
                 nomesQuePodem = nomesQuePodem.filter(y => y != x);
@@ -208,7 +214,7 @@ const funcoesAuxiliares = {
 
 };
 
-//autoinvocável
+//coloca eventos nos botões
 (function () {
     document.getElementById("mes_ano").addEventListener("change", inserirMes);
     document.getElementById("inserir_nomes").addEventListener("click", inserirNomes);
@@ -233,9 +239,9 @@ Jonatas;Mesa;Projeção;Transmissão;Domingo;Quarta;Sábado;fim
 Felipe;Mesa;Projeção;;Domingo;;Sábado;fim`
 })();
 
+//mostra e oculta informações na página após a escolha do mês
 function inserirMes() {
     document.getElementsByClassName("divisao_nomes")[0].removeAttribute("hidden");
-
     document.getElementsByClassName("divisao_nomes_inseridos")[0].setAttribute("hidden", "hidden");
     document.getElementsByClassName("divisao_nomes_inseridos")[1].setAttribute("hidden", "hidden");
     document.getElementById("lista_nomes").setAttribute("hidden", "hidden");
@@ -243,6 +249,7 @@ function inserirMes() {
     document.getElementById("escala").setAttribute("hidden", "hidden");
 }
 
+//pega os nomes e coloca na tabela de disponibilidade 
 function inserirNomes() {
     funcoesAuxiliares.pegarMes();
     funcoesAuxiliares.zerarEscala();
@@ -255,6 +262,7 @@ function inserirNomes() {
     document.getElementsByClassName("divisao_nomes_inseridos")[1].removeAttribute("hidden");
 }
 
+//pega os nomes, funções e dias e coloca na tabela de disponibilidade 
 function inserirNomesCSV() {
     funcoesAuxiliares.pegarMes();
     funcoesAuxiliares.zerarEscala();
@@ -267,6 +275,7 @@ function inserirNomesCSV() {
     document.getElementsByClassName("divisao_nomes_inseridos")[1].removeAttribute("hidden");
 }
 
+//cria a tabela de escala
 function criarEscala() {
     funcoesAuxiliares.pegarMes();
     funcoesAuxiliares.zerarEscala();
@@ -284,7 +293,7 @@ function criarEscala() {
 }
 
 
-
+//cria a tabela editável para colocar nomes manualmente
 function tabelaEditavel(nomes) {
 
     let escalaEditavel = `<table class="tabela_editavel"> <tr><th colspan="4">Atrirbuição manual - ${escala[0]}</th></tr>`;
@@ -380,6 +389,7 @@ function tabelaEditavel(nomes) {
     document.getElementById("escala_editavel").innerHTML = escalaEditavel;
 }
 
+//insere os nomes da textarea "text_area_nomes"
 function inserirNomesTabela(nomes) {
 
     let calendarioPequeno = funcoesAuxiliares.criarCalendarioPequeno();
@@ -402,6 +412,7 @@ function inserirNomesTabela(nomes) {
     document.getElementById("lista_nomes").innerHTML = listaNomes;
 }
 
+//insere os nomes da textarea "text_area_nomesCSV"
 function inserirNomesTabelaCSV(nomesCSV) {
 
     let calendarioPequeno = funcoesAuxiliares.criarCalendarioPequeno();
@@ -433,6 +444,7 @@ function inserirNomesTabelaCSV(nomesCSV) {
     document.getElementById("lista_nomes").innerHTML = listaNomes;
 }
 
+//enche as variáveis com as informações dos nomes, funções, dias que podem e quantidade de vezes
 function organizarDados() {
 
     diasExcluidos = {};
@@ -483,12 +495,14 @@ function organizarDados() {
 
 }
 
+//backup dos nomes e funções para sortear mais vezes
 function backupDados() {
     funcoesBackup.mesa = funcoes.mesa.map(x => x);
     funcoesBackup.projecao = funcoes.projecao.map(x => x);
     funcoesBackup.transmissao = funcoes.transmissao.map(x => x);
 }
 
+//pega os nomes inseridos manualmente na escala
 function coletarTabelaEditavel() {
 
     let selectMesa;
@@ -517,6 +531,7 @@ function coletarTabelaEditavel() {
     mes.data.setDate(1);
 }
 
+//insere os nomes nas funções e dias do mês sorteando os nomes na função "funcoesAuxiliares.sortear"
 function sortearNomes() {
 
     //prioriza dias com poucos nomes
@@ -537,7 +552,11 @@ function sortearNomes() {
                 let sorteadoProjecao;
 
                 //orderm de sorteio = mesa, transmissão, projeção
+
+                //sorteia um nome para mesa
                 sorteadoMesa = escala[i].mesa == null ? funcoesAuxiliares.sortear(funcoes.mesa, mes.data.getDay(), escala[i], i) : escala[i].mesa;
+                
+                //sorteia um nome para transmissão
                 sorteadoTransmissao = escala[i].transmissao == null ? funcoesAuxiliares.sortear(funcoes.transmissao, mes.data.getDay(), escala[i], i) : escala[i].transmissao;
 
                 //sorteia projeção somente no sábado
@@ -546,23 +565,27 @@ function sortearNomes() {
                         funcoesAuxiliares.sortear(funcoes.projecao, mes.data.getDay(), escala[i], i) : escala[i].projecao;
                 }
 
-                //verifica se a pessoa da mesa e da transmissão pode ficar na projeção
-                //ou força a pessoa da transmissão a ficar na projeção
+                /*verifica se a pessoa da mesa e da transmissão pode ficar na projeção
+                ou força a pessoa da transmissão a ficar na projeção */
                 else if (!escala[i].projecao) {
 
+                    //pessoa da mesa e da transmissão podem ficar na projeção
                     if ((sorteadoMesa && sorteadoTransmissao) &&
                         (funcoesBackup.projecao.includes(sorteadoMesa) &&
                             funcoesBackup.projecao.includes(sorteadoTransmissao))) {
                         sorteadoProjecao = sorteadoMesa + "/" + sorteadoTransmissao;
                     }
+                    //só a pessoa da mesa pode ficar na projeção
                     else if ((sorteadoMesa && !sorteadoTransmissao) &&
                         funcoesBackup.projecao.includes(sorteadoMesa)) {
                         sorteadoProjecao = sorteadoMesa;
                     }
+                    //só a pessoa da transmissão pode ficar na projeção
                     else if ((!sorteadoMesa && sorteadoTransmissao) &&
                         funcoesBackup.projecao.includes(sorteadoTransmissao)) {
                         sorteadoProjecao = sorteadoTransmissao;
                     }
+                    //força a pessoa da transmissão a ficar na projeção
                     else if (sorteadoTransmissao) {
                         sorteadoProjecao = sorteadoTransmissao;
                     }
@@ -572,6 +595,7 @@ function sortearNomes() {
 
                 }
 
+                //junta o nome da transmissão com o nome da mesa na projeção caso disponível
                 else if (escala[i].projecao) {
 
                     if ((sorteadoMesa == escala[i].projecao) &&
@@ -605,6 +629,7 @@ function sortearNomes() {
     }
 }
 
+//constrói a tabela da escala
 function construirEscala() {
     let escalaHtml = `<h2 style="margin: 10px;">Escala pronta</h2> <table class="tabela"> <tr><th colspan="4">${escala[0]}</th></tr>`;
     let escalaConsole = escala[0];
@@ -635,4 +660,3 @@ function construirEscala() {
     console.log('Mesa:', funcoes.mesa, 'Projeção:', funcoes.projecao, 'Transmissão:', funcoes.transmissao);
     console.log(escala);
 }
-
