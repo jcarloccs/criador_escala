@@ -38,7 +38,8 @@ let escala;
 
 const construcaoHTML = {
     //Html das pessoas e funções da tabela de disponibilidade
-    dadosTabela: function(i, calendarioPequeno, nome, dispMesa = 'checked="true"', dispProjecao = 'checked="true"', dispTransmissao = 'checked="true"', dispDomingo = 'checked="true"', dispQuarta = 'checked="true"', dispSabado = 'checked="true"') {
+    dadosTabela: function(i, calendarioPequeno, nome, dispMesa = "checked", dispProjecao = "checked", dispTransmissao = "checked", dispDomingo = "checked", dispQuarta = "checked", dispSabado = "checked") {
+        
         let temp2 = `
         <tr>
             <td id="nome${i}" class="primeira_coluna">${nome}</td> 
@@ -90,14 +91,14 @@ const construcaoHTML = {
     //Html do mini calendário para escolha de dias
     criarCalendarioPequeno: function() {
 
-        let calendarioPequeno = '<table class="pequeno_calendario"> <tr> <th>Dom</th> <th hidden>Seg</th> <th hidden>Ter</th> <th>Qua</th> <th hidden>Qui</th> <th hidden>Sex</th> <th>Sáb</th> </tr> <tr>';
+        let calendarioPequeno = '<table class="pequeno_calendario"> <tr> <th>Dom</th> <th class="ocultar">Seg</th> <th class="ocultar">Ter</th> <th>Qua</th> <th class="ocultar">Qui</th> <th class="ocultar">Sex</th> <th>Sáb</th> </tr> <tr>';
     
         //dias da semana
         for (let i = 1; i <= mes.data.getDay(); i++) {
             if (i == 1 || i == 4 || i == 7) {
                 calendarioPequeno += '<td style="background-color: white;"></td>';
             } else {
-                calendarioPequeno += '<td hidden style="background-color: white;"></td>';
+                calendarioPequeno += '<td class="ocultar" style="background-color: white;"></td>';
             }
         }
         //dias do mês
@@ -108,7 +109,7 @@ const construcaoHTML = {
                 calendarioPequeno += `<td> <input type="checkbox" name="dia${i}" value="dia${i}" class="dia${i}" checked="true">
                 <label for="dia">${i}</label> </td>`;
             } else {
-                calendarioPequeno += `<td hidden> <input type="checkbox" name="dia${i}" value="dia${i}" class="dia${i}" checked="true">
+                calendarioPequeno += `<td class="ocultar"> <input type="checkbox" name="dia${i}" value="dia${i}" class="dia${i}" checked="true">
                 <label for="dia">${i}</label> </td>`;
             }
             mes.data.setDate(1);
@@ -232,7 +233,7 @@ const construcaoHTML = {
         }
     
         listaNomes += "</table>"
-        document.getElementById("lista_nomes").removeAttribute("hidden");
+        document.getElementById("lista_nomes").classList.remove("ocultar");
         document.getElementById("lista_nomes").innerHTML = listaNomes;
     },
     //cria a tabela de disponibilidade das pessoas coletando informações da Text Area CSV
@@ -252,18 +253,18 @@ const construcaoHTML = {
             let temp = nomesCSV[i].split(";");
     
             let nomeBruto = temp[0];
-            let dispMesa = temp[1] == "Mesa" ? 'checked="true"' : "";
-            let dispProjecao = temp[2] == "Projeção" ? 'checked="true"' : "";
-            let dispTransmissao = temp[3] == "Transmissão" ? 'checked="true"' : "";
-            let dispDomingo = temp[4] == "Domingo" ? 'checked="true"' : "";
-            let dispQuarta = temp[5] == "Quarta" ? 'checked="true"' : "";
-            let dispSabado = temp[6] == "Sábado" ? 'checked="true"' : "";
+            let dispMesa = temp[1] == "Mesa" ? "checked" : "";
+            let dispProjecao = temp[2] == "Projeção" ? "checked" : "";
+            let dispTransmissao = temp[3] == "Transmissão" ? "checked" : "";
+            let dispDomingo = temp[4] == "Domingo" ? "checked" : "";
+            let dispQuarta = temp[5] == "Quarta" ? "checked" : "";
+            let dispSabado = temp[6] == "Sábado" ? "checked" : "";
     
             listaNomes += construcaoHTML.dadosTabela(i, calendarioPequeno, nomeBruto, dispMesa, dispProjecao, dispTransmissao, dispDomingo, dispQuarta, dispSabado);
         }
     
         listaNomes += "</table>"
-        document.getElementById("lista_nomes").removeAttribute("hidden");
+        document.getElementById("lista_nomes").classList.remove("ocultar");
         document.getElementById("lista_nomes").innerHTML = listaNomes;
     },
     //constrói a tabela da escala
@@ -291,7 +292,7 @@ const construcaoHTML = {
             }
         }
         escalaHtml += "</table>";
-        document.getElementById("escala").removeAttribute("hidden");
+        document.getElementById("escala").classList.remove("ocultar");
         document.getElementById("escala").innerHTML = escalaHtml.replace(/null/g, "____");
     
         //console.log('Mesa:', funcoes.mesa, 'Projeção:', funcoes.projecao, 'Transmissão:', funcoes.transmissao);
@@ -524,14 +525,14 @@ const pegarInformacoes = {
         construcaoHTML.tabelaEditavel(soNomes);
     },
     inserirNomes: function() {
-        document.getElementById("escala").setAttribute("hidden", "hidden");
+        document.getElementById("escala").classList.add("ocultar");
         pegarInformacoes.pegarMes();
         manipucacaoDados.zerarEscala();
 
-        document.getElementById("escala_editavel").removeAttribute("hidden")
+        document.getElementById("escala_editavel").classList.remove("ocultar");
     
-        document.getElementsByClassName("divisao_nomes_inseridos")[0].removeAttribute("hidden");
-        document.getElementsByClassName("divisao_nomes_inseridos")[1].removeAttribute("hidden");
+        document.getElementsByClassName("divisao_nomes_inseridos")[0].classList.remove("ocultar");
+        document.getElementsByClassName("divisao_nomes_inseridos")[1].classList.remove("ocultar");
 
     }
 }
@@ -615,12 +616,12 @@ const manipucacaoDados = {
 
 //mostra e oculta informações na página após a escolha do mês
 function inserirMes() {
-    document.getElementsByClassName("divisao_nomes")[0].removeAttribute("hidden");
-    document.getElementsByClassName("divisao_nomes_inseridos")[0].setAttribute("hidden", "hidden");
-    document.getElementsByClassName("divisao_nomes_inseridos")[1].setAttribute("hidden", "hidden");
-    document.getElementById("lista_nomes").setAttribute("hidden", "hidden");
-    document.getElementById("escala_editavel").setAttribute("hidden", "hidden");
-    document.getElementById("escala").setAttribute("hidden", "hidden");
+    document.getElementsByClassName("divisao_nomes")[0].classList.remove("ocultar");
+    document.getElementsByClassName("divisao_nomes_inseridos")[0].classList.add("ocultar");
+    document.getElementsByClassName("divisao_nomes_inseridos")[1].classList.add("ocultar");
+    document.getElementById("lista_nomes").classList.add("ocultar");
+    document.getElementById("escala_editavel").classList.add("ocultar");
+    document.getElementById("escala").classList.add("ocultar");
 }
 
 //cria a tabela de escala

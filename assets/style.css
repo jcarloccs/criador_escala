@@ -137,3 +137,7 @@ div.mes input {
 .primeira_coluna {
     font-weight: bold;
 }
+
+.ocultar {
+    display: none;
+}
